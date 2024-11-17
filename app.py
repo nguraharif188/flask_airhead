@@ -29,7 +29,7 @@ async def fetch_address_info(session, address, max_retries=3):
                 if response.status == 200:
                     logging.info(f"Response received for address {address}")
                     return await response.json()
-                
+                   
             await asyncio.sleep(1)
             logging.info(f"Request made for address {address}: Status Code {response.status}")
 
@@ -79,9 +79,11 @@ def process():
         # Process addresses asynchronously
         data = run_async(process_addresses, addresses)
 
-        # Convert the data list to a DataFrame and save it to Excel
+        # Convert the data list to a DataFrame
         df = pd.DataFrame(data)
-        output_excel = '/tmp/results.xlsx'  # Save in temporary folder for Vercel deployment
+
+        # Save results to a temporary file for download
+        output_excel = '/tmp/results.xlsx'
         try:
             df.to_excel(output_excel, index=False)
             logging.info(f"Data successfully saved to {output_excel}")
@@ -89,7 +91,12 @@ def process():
             logging.error(f"Failed to save data to {output_excel}: {e}")
             return "Error saving data", 500
 
-        return send_file(output_excel, as_attachment=True)
+        # Display results directly on the page
+        return render_template('results.html', tables=[df.to_html(classes='data')], excel_file=output_excel)
+
+@app.route('/download')
+def download():
+    return send_file('/tmp/results.xlsx', as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
