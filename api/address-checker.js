@@ -25,8 +25,9 @@ app.post("/api/check-addresses", async (req, res) => {
         { address },
         {
           headers: {
+            "Accept": "*/*",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
             "X-OYL-API-KEY": API_KEY,
-            "Content-Type": "application/json",
           },
         }
       );
