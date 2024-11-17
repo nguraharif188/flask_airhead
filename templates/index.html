@@ -3,30 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Results</title>
-    <style>
-        .data {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .data th, .data td {
-            padding: 8px;
-            border: 1px solid #ddd;
-        }
-    </style>
+    <title>Address Checker</title>
 </head>
 <body>
-    <h1>Results</h1>
-    <div>
-        <h2>Addresses Check Results</h2>
-        <div>{{ tables|safe }}</div>
-    </div>
-
-    <div>
-        <a href="/download" class="btn">Download Results as Excel</a>
-    </div>
-
-    <br>
-    <a href="/">Go Back</a>
+    <h1>Enter Addresses</h1>
+    <form action="/process" method="POST">
+        <textarea name="addresses" rows="10" cols="50" placeholder="Enter addresses, one per line..."></textarea><br>
+        <button type="submit">Check Addresses</button>
+    </form>
 </body>
 </html>
