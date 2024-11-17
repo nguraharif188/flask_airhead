@@ -61,18 +61,23 @@ async def process_addresses(addresses):
     
     return data
 
+def run_async(func, *args):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    return loop.run_until_complete(func(*args))
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/process', methods=['POST'])
-async def process():
+def process():
     if request.method == 'POST':
         addresses_text = request.form['addresses']
         addresses = addresses_text.splitlines()
 
         # Process addresses asynchronously
-        data = await process_addresses(addresses)
+        data = run_async(process_addresses, addresses)
 
         # Convert the data list to a DataFrame and save it to Excel
         df = pd.DataFrame(data)
