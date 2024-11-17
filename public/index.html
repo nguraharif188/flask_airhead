@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Address Checker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-bottom: 15px;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .results {
+      margin-top: 20px;
+    }
+
+    .results table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .results th, .results td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .results th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Address Checker</h1>
+    <textarea id="addresses" placeholder="Enter one address per line"></textarea>
+    <button id="checkBtn">Check Addresses</button>
+    <div id="results" class="results"></div>
+  </div>
+
+  <script>
+    document.getElementById("checkBtn").addEventListener("click", async () => {
+      const addressesInput = document.getElementById("addresses").value.trim();
+      const addresses = addressesInput.split("\n").map((addr) => addr.trim()).filter((addr) => addr);
+
+      if (addresses.length === 0) {
+        alert("Please enter at least one address.");
+        return;
+      }
+
+      document.getElementById("results").innerHTML = "Checking...";
+
+      try {
+        const response = await fetch("/api/address-checker", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ addresses }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        let html = `
+          <table>
+            <tr>
+              <th>Address</th>
+              <th>Wallet Rank</th>
+              <th>Whale</th>
+              <th>Priority</th>
+              <th>Fat Meter</th>
+              <th>Guaranteed Mint</th>
+            </tr>
+        `;
+
+        data.forEach((row) => {
+          html += `
+            <tr>
+              <td>${row.address}</td>
+              <td>${row.walletRank || "N/A"}</td>
+              <td>${row.whale || "N/A"}</td>
+              <td>${row.priority || "N/A"}</td>
+              <td>${row.fatMeter || "N/A"}</td>
+              <td>${row.guaranteedMint || "N/A"}</td>
+            </tr>
+          `;
+        });
+
+        html += "</table>";
+        document.getElementById("results").innerHTML = html;
+      } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("results").innerHTML = `<p style="color: red;">Failed to check addresses. Please try again later.</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
